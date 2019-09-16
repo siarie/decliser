@@ -63,11 +63,10 @@ $config['hide_directories']	= array(
 	'..',
 );
 $config['hide_files']		= array(
-	// '.htaccess',
-	'Listmydir.php',
+	'Decliser.php',
 	'index.php'
 );
-$config['hide_by_ext']	= array();
+$config['hide_by_ext']	= array('ext');
 /*
 |---------------------------------------------------
 | Sorting
