@@ -1,38 +1,4 @@
 <?php
-
-/**
- * Listing My Directory
- *
- * Free PHP directory lister
- *
- * This content is released under the MIT License (MIT)
- *
- * Copyright (c) 2019 Sri Aspari
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- * 
- * @package	Listing My Directory
- * @author	Sri Aspari (siarie)
- * @link	https://github.com/listmydir
- * @since	Version 1.0.0
- **/
-
 /*** CONFIGURATION ***/
 
 /*
@@ -42,9 +8,9 @@
 | This option will show title in the address bar and at
 | the top of your page.
 |
-| NOTICE: YOU CAN SET NULL TO LEAVE IT BLANK
+| NOTE: YOU CAN SET NULL TO LEAVE IT BLANK
 */
-$config['site_title']		= 'Local CDN';
+$config['site_title']		= 'PHP Directory Lister';
 /*
 |---------------------------------------------------
 | Root Directory
@@ -55,7 +21,7 @@ $config['site_title']		= 'Local CDN';
 | '.' Or '' => Directory where this script is located
 | 'path'	=> Show sub directory
 */
-$config['root_directory']	= '.';
+$config['root_directory']	= './';
 /*
 |---------------------------------------------------
 | Directory URL
@@ -65,10 +31,10 @@ $config['root_directory']	= '.';
 | http://example.com/
 | OR
 | http://example.com/path/
-|
+| 
 | WARNING: You MUST set this value!
 */
-$config['directory_url']	= 'http://cdn.local.dep/';
+$config['directory_url']	= 'http://local.dep/decliser/';
 /*
 |---------------------------------------------------
 | Open File in New Tab
@@ -77,21 +43,31 @@ $config['directory_url']	= 'http://cdn.local.dep/';
 | you must enable it by setting this variable value to
 | TRUE (boolean).
 */
-$config['open_new_tab']		= FALSE;
-/*
-|---------------------------------------------------
-| Ignore Directory and Files
-|---------------------------------------------------
-|	This option will hide directory or files you want 
-| hide in the directory listing
-|
-| hide_directories	Use to hide directory
-| hide_files				Use to hide files
-| hide_file_ext			Use to hide files by extension
-*/
-$config['hide_directories']	= array();
-$config['hide_files']		= array();
-$config['hide_files_ext']	= array();
+$config['open_new_tab']		= TRUE;
+/**
+ * Ignore Directory and Files
+ * 
+ * This option will hide directory or files you want 
+ * hide in the directory listing
+ * 
+ * hide_directories		Use to hide directory
+ * hide_files			Use to hide files
+ * hide_by_ext			Use to hide files by extension, 'dir' to hide all directories
+ * 						
+ */
+$config['hide_dotfiles']	= TRUE;
+$config['hide_dotdir']		= TRUE;
+
+$config['hide_directories']	= array(
+	'.',
+	'..',
+);
+$config['hide_files']		= array(
+	// '.htaccess',
+	'Listmydir.php',
+	'index.php'
+);
+$config['hide_by_ext']	= array();
 /*
 |---------------------------------------------------
 | Sorting
@@ -103,10 +79,11 @@ $config['hide_files_ext']	= array();
 */
 $config['sort_by']			= 'name_asc';
 
-
-require_once './Listmydir.php';
-$start = new Listmydir();
-$files = $start->index();
+require_once './Decliser.php';
+$start = new Decliser($config);
+// $files = $start->index();
+// print_r($start);
+// die();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -115,7 +92,7 @@ $files = $start->index();
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta http-equiv="X-UA-Compatible" content="ie=edge">
-	<title>Local CDN</title>
+	<title><?=$start->config['site_title']; ?></title>
 	<style>
 		* {
 			margin: 0;
@@ -228,16 +205,16 @@ $files = $start->index();
 <body>
 	<div class="box">
 		<div class="box-header">
-			Local CDN <br>
+			<?=$start->config['site_title']; ?>
 		</div>
 		<div class="breadcrumb">
-			<?php if (!empty($files['breadcrumb'])) : ?>
+			<?php if (!empty($start->breadcrumb)) : ?>
 				<ul>
-					<?php foreach ($files['breadcrumb'] as $url => $name) : ?>
+					<?php foreach ($start->breadcrumb as $url => $name) : ?>
 
 						<li>
 							<?php
-									$lastitem = array_keys($files['breadcrumb']);
+									$lastitem = array_keys($start->breadcrumb);
 									if ($url == end($lastitem)) : ?>
 								<a href="?url=<?= $url ?>"><?= $name ?></a>
 							<?php else : ?>
@@ -251,8 +228,8 @@ $files = $start->index();
 		<div class="box-body">
 
 			<table>
-				<?php if (!empty($files['files'])) : ?>
-					<?php foreach ($files['files'] as $file) : ?>
+				<?php if (!empty($start->files)) : ?>
+					<?php foreach ($start->files as $file) : ?>
 						<tr>
 							<td>
 								<a href="<?= $file['url'] ?>" target="<?= $file['target'] ?>"><?= $file['name'] ?></a>
@@ -261,8 +238,9 @@ $files = $start->index();
 						</tr>
 					<?php endforeach; ?>
 				<?php else : ?>
+				
 					<tr>
-						<td>File Not Found</td>
+						<td align="center" colspan="2">File Not Found</td>
 					</tr>
 				<?php endif; ?>
 			</table>
